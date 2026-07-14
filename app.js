@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getAuth, sendPasswordResetEmail, signInAnonymously, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import { getFirestore, collection, doc, getDoc, getDocs, limit, onSnapshot, query, runTransaction, serverTimestamp, setDoc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const $ = (s) => document.querySelector(s);
@@ -64,22 +64,59 @@ function finishGame(team){state.locked=true;$("#winner-title").textContent=`${te
 
 function renderReport(){const accuracy=state.asked?Math.round(state.correct/state.asked*100):0;$("#report-summary").innerHTML=`<div class="summary-grid"><div class="summary-box"><b>${state.asked}</b><small>푼 문제</small></div><div class="summary-box"><b>${accuracy}%</b><small>정답률</small></div><div class="summary-box"><b>${state.wrong.length}</b><small>오답</small></div></div>`;$("#wrong-note").innerHTML=state.wrong.length?`<h3>오답 노트</h3>${state.wrong.map(q=>`<div class="wrong-card"><b>${escapeText(q.team)} · ${escapeText(q.category)}</b><div>${sanitizeHtml(q.html)}</div><small>${Number.isInteger(q.answer)?`정답: ${q.answer}번 ${escapeText(q.choices[q.answer-1])}`:"정답은 교사 화면에서 확인하세요."}</small></div>`).join("")}`:`<p class="empty">아직 기록된 오답이 없습니다.</p>`;$("#report-dialog").showModal()}
 
+async function openTeacherDashboard(){
+  const status=$("#teacher-auth-status");
+  showScreen("teacher-screen");
+  status.className="upload-result loading";
+  status.textContent="교사 인증 완료 · 문제 은행을 불러오는 중입니다…";
+  try{
+    await loadQuizBank();
+    status.className="upload-result success";
+    status.textContent=`교사 인증 완료 · 문제 ${state.quizzes.length}개를 불러왔습니다.`;
+  }catch(error){
+    console.error("Teacher quiz bank load failed",error);
+    status.className="upload-result error";
+    status.textContent=`교사 로그인은 완료되었지만 문제 은행을 불러오지 못했습니다: ${error.message}`;
+  }
+}
 async function teacherLogin(){
-  if(auth.currentUser?.email?.toLowerCase()===TEACHER_EMAIL){await loadQuizBank();showScreen("teacher-screen");return}
+  if(auth.currentUser?.email?.toLowerCase()===TEACHER_EMAIL){await openTeacherDashboard();return}
   const d=$("#password-dialog");$("#teacher-password").value="";$("#password-error").textContent="";d.showModal();$("#teacher-password").focus();
 }
 async function submitTeacherAuth(){
   const password=$("#teacher-password").value;
   const errorBox=$("#password-error");
+  const submit=$("#password-submit");
   if(password.length<8){errorBox.textContent="비밀번호는 8자 이상 입력하세요.";return}
   errorBox.textContent="로그인 중입니다…";
+  submit.disabled=true;
   try{
     const credential=await signInWithEmailAndPassword(auth,TEACHER_EMAIL,password);
     if(credential.user.email?.toLowerCase()!==TEACHER_EMAIL){await signOut(auth);throw new Error("허용된 교사 계정이 아닙니다.")}
-    $("#password-dialog").close();await loadQuizBank();showScreen("teacher-screen");
-  }catch(error){errorBox.textContent=error.code==="auth/invalid-credential"?"이메일 또는 비밀번호가 올바르지 않습니다.":error.message}
+    $("#password-dialog").close();
+    await openTeacherDashboard();
+  }catch(error){
+    console.error("Teacher sign-in failed",error);
+    errorBox.textContent=error.code==="auth/invalid-credential"
+      ? "등록된 교사 계정 또는 비밀번호를 확인하세요. 비밀번호를 모르면 아래에서 재설정할 수 있습니다."
+      : `로그인 오류: ${error.message}`;
+  }finally{submit.disabled=false}
+}
+async function resetTeacherPassword(){
+  const errorBox=$("#password-error"),button=$("#password-reset");
+  button.disabled=true;
+  errorBox.textContent="재설정 메일을 요청하는 중입니다…";
+  try{
+    await sendPasswordResetEmail(auth,TEACHER_EMAIL);
+    errorBox.textContent=`${TEACHER_EMAIL}로 비밀번호 재설정 메일을 요청했습니다. 받은편지함과 스팸함을 확인하세요.`;
+  }catch(error){
+    console.error("Teacher password reset failed",error);
+    errorBox.textContent=`재설정 메일 요청 실패: ${error.message}`;
+  }finally{button.disabled=false}
 }
 $("#password-submit").onclick=submitTeacherAuth;
+$("#password-reset").onclick=resetTeacherPassword;
+$("#teacher-password").addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();submitTeacherAuth()}});
 $("#join-submit").onclick=joinOnlineRoom;
 $("#student-entry").onclick=()=>{$("#join-code").value="";$("#join-team-name").value="";$("#join-error").textContent="";$("#join-dialog").showModal()};$("#teacher-entry").onclick=teacherLogin;$$('.back-home').forEach(b=>b.onclick=()=>showScreen("home-screen"));$("#start-game").onclick=async()=>{try{resetGame();await createOnlineRoom();showScreen("game-screen")}catch(error){alert(`게임방 생성 실패: ${error.message}`)}};$("#teacher-start").onclick=()=>{online.isHost=true;setupTeams(4);showScreen("setup-screen")};$("#exit-game").onclick=()=>showScreen("home-screen");$("#open-report").onclick=renderReport;$("#winner-report").onclick=()=>{$("#winner-dialog").close();renderReport()};
 function openTv(){window.open(`${location.pathname}#tv`,"history-tv","noopener")};$("#tv-button").onclick=openTv;$("#teacher-tv").onclick=openTv;
