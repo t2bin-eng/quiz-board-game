@@ -28,14 +28,15 @@
       <div class="setup-panel">
         <div class="step-card"><div class="step-title"><span>1</span><div><h2>참가 팀</h2><p>팀 수와 이름을 정하세요.</p></div></div><div class="team-count" id="team-count"></div><div id="team-fields" class="team-fields"></div></div>
         <div class="step-card"><div class="step-title"><span>2</span><div><h2>탐험 말</h2><p>팀 카드를 누른 뒤 원하는 말을 고르세요.</p></div></div><div id="active-team-label" class="active-team-label"></div><div id="token-picker" class="token-picker"></div></div>
-        <button id="start-game" class="primary wide">탐험 시작하기</button>
+        <button id="start-game" class="primary wide">게임방 만들고 입장 QR 표시</button>
       </div>
     </section>
 
     <section id="game-screen" class="screen game-screen">
       <header class="game-header">
-        <div class="brand"><span>🏯</span><div><b>한국사 역사 탐험</b><small id="room-label">교실 게임</small></div></div>
+        <div class="brand"><span>🏯</span><div><b>한국사 역사 탐험</b><small>80칸 역사 여행</small></div></div>
         <div id="turn-banner" class="turn-banner"></div>
+        <button id="room-access-button" class="room-access-button" type="button" disabled><span>학생 입장</span><strong id="room-label">게임방 준비 전</strong></button>
         <div class="header-actions"><button id="open-report" class="ghost">학습 기록</button><button id="exit-game" class="ghost">나가기</button></div>
       </header>
       <div class="game-layout">
@@ -73,6 +74,7 @@
 
   <dialog id="password-dialog"><form method="dialog" class="modal-card"><button class="modal-close" value="cancel">×</button><span class="modal-icon">🔐</span><h2>교사 인증</h2><p>등록된 교사 이메일과 비밀번호로 로그인하세요.</p><input id="teacher-email" type="email" autocomplete="username" value="t2bin@uryeo-h.gne.go.kr" readonly /><input id="teacher-password" type="password" autocomplete="current-password" placeholder="비밀번호" /><p id="password-error" class="error" role="status" aria-live="polite"></p><button id="password-submit" type="button" class="primary wide">로그인</button><button id="password-reset" type="button" class="ghost wide">비밀번호 재설정 메일 받기</button></form></dialog>
   <dialog id="join-dialog"><form method="dialog" class="modal-card"><button class="modal-close" value="cancel">×</button><span class="modal-icon">🎒</span><h2>교실 게임 입장</h2><p>선생님 화면의 6자리 입장 코드를 입력하세요.</p><input id="join-code" inputmode="text" maxlength="6" autocomplete="off" placeholder="입장 코드" /><input id="join-team-name" maxlength="12" autocomplete="off" placeholder="팀 이름" /><p id="join-error" class="error"></p><button id="join-submit" type="button" class="primary wide">게임 입장</button></form></dialog>
+  <dialog id="room-access-dialog"><form method="dialog" class="room-access-modal"><button class="modal-close" value="cancel">×</button><p class="eyebrow">학생 접속 안내</p><h2>QR을 스캔하거나 코드를 입력하세요</h2><div class="room-access-layout"><div id="room-qr" class="room-qr" aria-label="학생 접속 QR 코드"></div><div class="room-access-info"><span>입장 코드</span><strong id="room-code-large">------</strong><p id="room-join-url"></p><button id="copy-join-link" type="button" class="ghost wide">접속 링크 복사</button><p id="copy-result" class="copy-result" role="status"></p></div></div><button value="cancel" class="primary wide">확인</button></form></dialog>
   <dialog id="quiz-dialog"><form method="dialog" class="quiz-modal"><div class="quiz-top"><span id="quiz-category"></span><span id="quiz-timer"></span></div><div id="quiz-question" class="quiz-question"></div><div id="quiz-choices" class="quiz-choices"></div><div id="quiz-feedback" class="quiz-feedback"></div></form></dialog>
   <dialog id="event-dialog"><form method="dialog" class="modal-card event-modal"><span id="event-icon" class="modal-icon"></span><h2 id="event-title"></h2><p id="event-message"></p><button id="event-confirm" type="button" class="primary wide">확인</button></form></dialog>
   <dialog id="item-dialog"><form method="dialog" class="modal-card"><span class="modal-icon">🎴</span><h2 id="item-title"></h2><p id="item-message"></p><div class="dialog-actions"><button id="item-skip" type="button" class="ghost">사용 안 함</button><button id="item-use" type="button" class="primary">사용하기</button></div></form></dialog>
@@ -81,6 +83,7 @@
 
   <script src="config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>
