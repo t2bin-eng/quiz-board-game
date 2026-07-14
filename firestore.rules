@@ -8,11 +8,18 @@ service cloud.firestore {
     function isRoomMember(roomId) {
       return signedIn() && exists(/databases/$(database)/documents/rooms/$(roomId)/players/$(request.auth.uid));
     }
+    function isRoomMemberAfter(roomId) {
+      return signedIn() && existsAfter(/databases/$(database)/documents/rooms/$(roomId)/players/$(request.auth.uid));
+    }
 
     match /rooms/{roomId} {
       allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
-      allow read: if isTeacher() || isRoomMember(roomId);
-      allow update, delete: if isTeacher() && resource.data.teacherId == request.auth.uid;
+      allow get: if signedIn();
+      allow list: if false;
+      allow update: if (isTeacher() || isRoomMember(roomId) || isRoomMemberAfter(roomId))
+        && request.resource.data.teacherId == resource.data.teacherId
+        && request.resource.data.code == resource.data.code;
+      allow delete: if isTeacher() && resource.data.teacherId == request.auth.uid;
 
       match /players/{playerId} {
         allow create: if signedIn() && playerId == request.auth.uid;
@@ -33,14 +40,41 @@ service cloud.firestore {
       allow write: if isTeacher();
     }
 
-    // Quiz answers must never be readable by browser clients.
-    match /quizQuestions/{questionId} {
-      allow read, write: if isTeacher();
+    match /quizPublic/{questionId} {
+      allow read: if signedIn();
+      allow write: if isTeacher();
     }
 
-    match /quizAttempts/{attemptId} {
+    // Answers are never readable by students. Rules may compare against them.
+    match /quizAnswers/{questionId} {
+      allow read: if isTeacher();
+      allow write: if isTeacher();
+    }
+
+    match /metadata/{documentId} {
+      allow read: if signedIn();
+      allow write: if isTeacher();
+    }
+
+    match /rooms/{roomId}/attempts/{attemptId} {
+      allow create: if (isTeacher() || isRoomMember(roomId))
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.selectedAnswer is int
+        && request.resource.data.selectedAnswer >= 1
+        && request.resource.data.selectedAnswer <= 5;
       allow read: if isTeacher() || (signedIn() && resource.data.userId == request.auth.uid);
-      allow write: if false;
+      allow update, delete: if false;
+    }
+
+    match /rooms/{roomId}/correct/{attemptId} {
+      allow create: if (isTeacher() || isRoomMember(roomId))
+        && request.resource.data.userId == request.auth.uid
+        && exists(/databases/$(database)/documents/rooms/$(roomId)/attempts/$(attemptId))
+        && get(/databases/$(database)/documents/rooms/$(roomId)/attempts/$(attemptId)).data.userId == request.auth.uid
+        && request.resource.data.questionId == get(/databases/$(database)/documents/rooms/$(roomId)/attempts/$(attemptId)).data.questionId
+        && get(/databases/$(database)/documents/quizAnswers/$(request.resource.data.questionId)).data.answer == get(/databases/$(database)/documents/rooms/$(roomId)/attempts/$(attemptId)).data.selectedAnswer;
+      allow read: if isTeacher() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow update, delete: if false;
     }
 
     match /{document=**} { allow read, write: if false; }

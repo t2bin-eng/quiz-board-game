@@ -2,6 +2,11 @@
 
 80칸 한국사 역사 탐험 교육용 보드게임 웹앱입니다.
 
+- Live: https://quiz-board-game.vercel.app
+- Firebase project: `fifth-glazing-501306-f5`
+- 6자리 입장 코드와 Firestore 실시간 게임 상태 동기화
+- XLSX 100문제 문제은행: 공개 문제/비공개 정답 분리 저장
+
 ## 배포 구성
 
 - Frontend: Vercel 정적 배포
