@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isTeacher() {
+      return signedIn() && request.auth.token.email == 't2bin@uryeo-h.gne.go.kr';
+    }
+    function isRoomMember(roomId) {
+      return signedIn() && exists(/databases/$(database)/documents/rooms/$(roomId)/players/$(request.auth.uid));
+    }
+
+    match /rooms/{roomId} {
+      allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
+      allow read: if isTeacher() || isRoomMember(roomId);
+      allow update, delete: if isTeacher() && resource.data.teacherId == request.auth.uid;
+
+      match /players/{playerId} {
+        allow create: if signedIn() && playerId == request.auth.uid;
+        allow read: if isTeacher() || isRoomMember(roomId);
+        allow update: if isTeacher() || (signedIn() && playerId == request.auth.uid);
+        allow delete: if isTeacher();
+      }
+
+      match /claims/{tileId} {
+        allow read: if isTeacher() || isRoomMember(roomId);
+        allow write: if isTeacher();
+      }
+    }
+
+    match /roomCodes/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow write: if isTeacher();
+    }
+
+    // Quiz answers must never be readable by browser clients.
+    match /quizQuestions/{questionId} {
+      allow read, write: if isTeacher();
+    }
+
+    match /quizAttempts/{attemptId} {
+      allow read: if isTeacher() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow write: if false;
+    }
+
+    match /{document=**} { allow read, write: if false; }
+  }
+}

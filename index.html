@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#17364f" />
+  <title>한국사 역사 탐험</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="app">
+    <section id="home-screen" class="screen active hero-screen">
+      <div class="hero-pattern"></div>
+      <div class="hero-card">
+        <p class="eyebrow">교실에서 함께 떠나는 80칸 역사 여행</p>
+        <h1>한국사 역사 탐험</h1>
+        <p class="hero-subtitle">주사위는 던져졌다!</p>
+        <div class="hero-palace" aria-hidden="true">🏯</div>
+        <div class="entry-grid">
+          <button id="student-entry" class="entry-button student"><span>🎒</span><strong>학생 접속</strong><small>팀을 만들고 게임 시작</small></button>
+          <button id="teacher-entry" class="entry-button teacher"><span>📚</span><strong>교사용 대시보드</strong><small>문제·게임·중계 관리</small></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="setup-screen" class="screen setup-screen">
+      <header class="topbar"><button class="back-home ghost">← 처음으로</button><div><b>새 탐험 준비</b><span>4~8팀과 말을 선택하세요</span></div></header>
+      <div class="setup-panel">
+        <div class="step-card"><div class="step-title"><span>1</span><div><h2>참가 팀</h2><p>팀 수와 이름을 정하세요.</p></div></div><div class="team-count" id="team-count"></div><div id="team-fields" class="team-fields"></div></div>
+        <div class="step-card"><div class="step-title"><span>2</span><div><h2>탐험 말</h2><p>팀 카드를 누른 뒤 원하는 말을 고르세요.</p></div></div><div id="active-team-label" class="active-team-label"></div><div id="token-picker" class="token-picker"></div></div>
+        <button id="start-game" class="primary wide">탐험 시작하기</button>
+      </div>
+    </section>
+
+    <section id="game-screen" class="screen game-screen">
+      <header class="game-header">
+        <div class="brand"><span>🏯</span><div><b>한국사 역사 탐험</b><small id="room-label">교실 게임</small></div></div>
+        <div id="turn-banner" class="turn-banner"></div>
+        <div class="header-actions"><button id="open-report" class="ghost">학습 기록</button><button id="exit-game" class="ghost">나가기</button></div>
+      </header>
+      <div class="game-layout">
+        <aside class="team-rail"><h2>탐험대</h2><div id="team-list"></div></aside>
+        <section class="board-stage">
+          <div id="board-shell" class="board-shell">
+            <img src="history_board_game_80_map_palace_final.svg" alt="1번 시작부터 80번 도착까지 이어지는 한국사 보드게임판" />
+            <div id="land-layer" class="land-layer" aria-hidden="true"></div>
+            <div id="token-layer" class="token-layer"></div>
+            <div id="board-toast" class="board-toast" role="status"></div>
+          </div>
+        </section>
+        <aside class="control-rail">
+          <div class="dice-card"><p id="dice-owner">주사위 준비</p><div id="dice" class="dice" aria-label="주사위 결과"><i></i></div><div class="charge"><span id="charge-fill"></span></div><button id="roll-button" class="roll-button">꾹 눌러 던지기</button><small>최대 2초 · 놓으면 굴러갑니다</small></div>
+          <div class="inventory-card"><h3>보유 아이템</h3><div id="inventory"></div></div>
+          <div class="log-card"><h3>탐험 기록</h3><ol id="game-log"></ol></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="teacher-screen" class="screen teacher-screen">
+      <header class="topbar"><button class="back-home ghost">← 처음으로</button><div><b>교사용 대시보드</b><span>게임 운영과 문제 은행 관리</span></div><button id="tv-button" class="primary small">📺 TV 중계 화면</button></header>
+      <div class="dashboard-grid">
+        <article class="dashboard-card accent"><span>등록 문제</span><strong id="question-count">100</strong><small>업로드 형식 검증 완료</small></article>
+        <article class="dashboard-card"><span>진행 중 게임</span><strong>0</strong><small>Firestore 연결 시 실시간 표시</small></article>
+        <article class="dashboard-card"><span>오늘 참가 팀</span><strong>0</strong><small>게임 종료 후 자동 집계</small></article>
+        <article class="dashboard-card wide-card"><div><h2>퀴즈 은행</h2><p>제공된 XLSX와 동일한 10개 열 형식을 사용합니다. HTML 문제 본문도 안전하게 표시합니다.</p></div><div class="upload-actions"><button id="download-template" class="ghost">빈 양식 다운로드</button><label class="primary file-button">XLSX 업로드<input id="quiz-upload" type="file" accept=".xlsx" hidden /></label></div><div id="upload-result" class="upload-result"></div></article>
+        <article class="dashboard-card wide-card"><div><h2>게임 운영</h2><p>학생 화면을 시작하거나 발표용 중계 화면을 새 창으로 엽니다.</p></div><div class="dashboard-actions"><button id="teacher-start" class="primary">새 게임 시작</button><button id="teacher-tv" class="ghost">TV 중계 열기</button></div></article>
+        <article class="dashboard-card wide-card security-note"><h2>운영 보안</h2><ul><li>교사는 Firebase 이메일 인증과 허용 이메일로 확인</li><li>정답은 학생 브라우저가 아닌 Vercel 서버 API에서 판정</li><li>Firebase 서비스 계정 키는 브라우저에 포함하지 않음</li></ul></article>
+      </div>
+    </section>
+
+    <section id="tv-screen" class="screen tv-screen"><div class="tv-title">한국사 역사 탐험 <span>LIVE</span></div><div class="tv-board"><img src="history_board_game_80_map_palace_final.svg" alt="TV 중계용 보드" /><div id="tv-token-layer"></div></div><div id="tv-status">게임 시작을 기다리는 중입니다.</div></section>
+  </main>
+
+  <dialog id="password-dialog"><form method="dialog" class="modal-card"><button class="modal-close" value="cancel">×</button><span class="modal-icon">🔐</span><h2>교사 인증</h2><p>등록된 교사 이메일과 비밀번호로 로그인하세요.</p><input id="teacher-email" type="email" autocomplete="username" value="t2bin@uryeo-h.gne.go.kr" readonly /><input id="teacher-password" type="password" autocomplete="current-password" placeholder="비밀번호" /><p id="password-error" class="error"></p><button id="password-submit" type="button" class="primary wide">로그인</button></form></dialog>
+  <dialog id="quiz-dialog"><form method="dialog" class="quiz-modal"><div class="quiz-top"><span id="quiz-category"></span><span id="quiz-timer"></span></div><div id="quiz-question" class="quiz-question"></div><div id="quiz-choices" class="quiz-choices"></div><div id="quiz-feedback" class="quiz-feedback"></div></form></dialog>
+  <dialog id="event-dialog"><form method="dialog" class="modal-card event-modal"><span id="event-icon" class="modal-icon"></span><h2 id="event-title"></h2><p id="event-message"></p><button id="event-confirm" type="button" class="primary wide">확인</button></form></dialog>
+  <dialog id="item-dialog"><form method="dialog" class="modal-card"><span class="modal-icon">🎴</span><h2 id="item-title"></h2><p id="item-message"></p><div class="dialog-actions"><button id="item-skip" type="button" class="ghost">사용 안 함</button><button id="item-use" type="button" class="primary">사용하기</button></div></form></dialog>
+  <dialog id="report-dialog"><form method="dialog" class="report-modal"><button class="modal-close" value="cancel">×</button><h2>학습 결과 리포트</h2><div id="report-summary"></div><div id="wrong-note"></div></form></dialog>
+  <dialog id="winner-dialog"><form method="dialog" class="winner-modal"><div class="confetti">🎉 ✨ 🎊</div><h2 id="winner-title"></h2><p>역사의 흐름을 완주하고 역사왕이 되신 것을 축하합니다!</p><button id="winner-report" type="button" class="primary">결과 확인</button></form></dialog>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
