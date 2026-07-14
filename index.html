@@ -92,7 +92,13 @@
       </div>
     </section>
 
-    <section id="tv-screen" class="screen tv-screen"><div class="tv-title">한국사 역사 탐험 <span>LIVE</span></div><div class="tv-board"><img src="history_board_game_80_map_palace_final.svg" alt="TV 중계용 보드" /><div id="tv-token-layer"></div></div><div id="tv-status">게임 시작을 기다리는 중입니다.</div></section>
+    <section id="tv-screen" class="screen tv-screen">
+      <div class="tv-title">한국사 역사 탐험 <span>LIVE</span></div>
+      <div class="tv-board"><img src="history_board_game_80_map_palace_final.svg" alt="TV 중계용 보드" /><div id="tv-token-layer"></div></div>
+      <div id="tv-dice-panel" class="tv-dice-panel"><span id="tv-dice-team">주사위 대기</span><strong id="tv-dice">–</strong></div>
+      <div id="tv-overlay" class="tv-overlay" hidden><div id="tv-overlay-icon" class="tv-overlay-icon"></div><h2 id="tv-overlay-title"></h2><div id="tv-overlay-body"></div></div>
+      <div id="tv-status" class="tv-status">게임 시작을 기다리는 중입니다.</div>
+    </section>
   </main>
 
   <dialog id="password-dialog"><form method="dialog" class="modal-card"><button class="modal-close" value="cancel">×</button><span class="modal-icon">🔐</span><h2>교사 인증</h2><p>등록된 교사 이메일과 비밀번호로 로그인하세요.</p><input id="teacher-email" type="email" autocomplete="username" value="t2bin@uryeo-h.gne.go.kr" readonly /><input id="teacher-password" type="password" autocomplete="current-password" placeholder="비밀번호" /><p id="password-error" class="error" role="status" aria-live="polite"></p><button id="password-submit" type="button" class="primary wide">로그인</button><button id="password-reset" type="button" class="ghost wide">비밀번호 재설정 메일 받기</button></form></dialog>

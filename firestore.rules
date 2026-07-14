@@ -11,6 +11,12 @@ service cloud.firestore {
     function isRoomMemberAfter(roomId) {
       return signedIn() && existsAfter(/databases/$(database)/documents/rooms/$(roomId)/players/$(request.auth.uid));
     }
+    function ownsCurrentTurn() {
+      return resource.data.snapshot.current is int
+        && resource.data.snapshot.current >= 0
+        && resource.data.snapshot.current < resource.data.snapshot.teams.size()
+        && resource.data.snapshot.teams[resource.data.snapshot.current].ownerUid == request.auth.uid;
+    }
 
     match /rooms/{roomId} {
       allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
@@ -20,7 +26,9 @@ service cloud.firestore {
         && request.resource.data.code == resource.data.code
         && (isTeacher()
           || ((isRoomMember(roomId) || isRoomMemberAfter(roomId))
-            && request.resource.data.status == resource.data.status));
+            && request.resource.data.status == resource.data.status
+            && (resource.data.status == 'lobby'
+              || (resource.data.status == 'playing' && ownsCurrentTurn()))));
       allow delete: if isTeacher() && resource.data.teacherId == request.auth.uid;
 
       match /players/{playerId} {
