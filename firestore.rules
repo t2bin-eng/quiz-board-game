@@ -16,9 +16,11 @@ service cloud.firestore {
       allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
       allow get: if signedIn();
       allow list: if false;
-      allow update: if (isTeacher() || isRoomMember(roomId) || isRoomMemberAfter(roomId))
-        && request.resource.data.teacherId == resource.data.teacherId
-        && request.resource.data.code == resource.data.code;
+      allow update: if request.resource.data.teacherId == resource.data.teacherId
+        && request.resource.data.code == resource.data.code
+        && (isTeacher()
+          || ((isRoomMember(roomId) || isRoomMemberAfter(roomId))
+            && request.resource.data.status == resource.data.status));
       allow delete: if isTeacher() && resource.data.teacherId == request.auth.uid;
 
       match /players/{playerId} {

@@ -32,6 +32,29 @@
       </div>
     </section>
 
+    <section id="student-lobby-screen" class="screen lobby-screen">
+      <header class="topbar"><div><b>학생 대기실</b><span>입장 코드 <strong id="student-lobby-code">------</strong></span></div></header>
+      <div class="lobby-shell student-lobby-card">
+        <div id="student-lobby-token" class="lobby-token">🎒</div>
+        <p class="eyebrow">우리 팀 정보를 입력하세요</p>
+        <h2 id="student-lobby-title">팀 준비</h2>
+        <label>팀명<input id="lobby-team-name" maxlength="12" autocomplete="off" placeholder="예: 고구려 탐험대" /></label>
+        <label>팀원명<textarea id="lobby-member-names" rows="5" maxlength="120" placeholder="한 줄에 한 명씩 입력하세요"></textarea></label>
+        <button id="student-ready" class="primary wide" type="button">준비완료</button>
+        <p id="student-ready-status" class="lobby-status" role="status" aria-live="polite">팀 정보를 입력하고 준비완료를 눌러주세요.</p>
+      </div>
+    </section>
+
+    <section id="teacher-lobby-screen" class="screen lobby-screen">
+      <header class="topbar"><div><b>교사 대기실</b><span>학생 준비 상태를 확인하고 게임을 시작하세요</span></div><button id="lobby-tv-button" class="ghost">📺 TV 중계</button><button id="lobby-room-access" class="primary small">QR·입장 코드</button></header>
+      <div class="lobby-shell teacher-lobby-card">
+        <div class="lobby-code-panel"><span>학생 입장 코드</span><strong id="teacher-lobby-code">------</strong><small>학생은 QR 또는 6자리 코드로 입장합니다.</small></div>
+        <div class="ready-summary"><span>준비 현황</span><strong id="ready-summary-count">0 / 0팀</strong><small id="ready-summary-message">학생 입장을 기다리는 중입니다.</small></div>
+        <div id="teacher-player-list" class="teacher-player-list"></div>
+        <div class="teacher-lobby-actions"><p>모든 팀이 준비되지 않아도 교사가 임의로 시작할 수 있습니다.</p><button id="host-start-game" class="primary" type="button">게임 시작</button></div>
+      </div>
+    </section>
+
     <section id="game-screen" class="screen game-screen">
       <header class="game-header">
         <div class="brand"><span>🏯</span><div><b>한국사 역사 탐험</b><small>80칸 역사 여행</small></div></div>
@@ -73,7 +96,7 @@
   </main>
 
   <dialog id="password-dialog"><form method="dialog" class="modal-card"><button class="modal-close" value="cancel">×</button><span class="modal-icon">🔐</span><h2>교사 인증</h2><p>등록된 교사 이메일과 비밀번호로 로그인하세요.</p><input id="teacher-email" type="email" autocomplete="username" value="t2bin@uryeo-h.gne.go.kr" readonly /><input id="teacher-password" type="password" autocomplete="current-password" placeholder="비밀번호" /><p id="password-error" class="error" role="status" aria-live="polite"></p><button id="password-submit" type="button" class="primary wide">로그인</button><button id="password-reset" type="button" class="ghost wide">비밀번호 재설정 메일 받기</button></form></dialog>
-  <dialog id="join-dialog"><form method="dialog" class="modal-card"><button class="modal-close" value="cancel">×</button><span class="modal-icon">🎒</span><h2>교실 게임 입장</h2><p>선생님 화면의 6자리 입장 코드를 입력하세요.</p><input id="join-code" inputmode="text" maxlength="6" autocomplete="off" placeholder="입장 코드" /><input id="join-team-name" maxlength="12" autocomplete="off" placeholder="팀 이름" /><p id="join-error" class="error"></p><button id="join-submit" type="button" class="primary wide">게임 입장</button></form></dialog>
+  <dialog id="join-dialog"><form method="dialog" class="modal-card"><button class="modal-close" value="cancel">×</button><span class="modal-icon">🎒</span><h2>교실 게임 입장</h2><p>선생님 화면의 6자리 입장 코드를 입력하세요.</p><input id="join-code" inputmode="text" maxlength="6" autocomplete="off" placeholder="입장 코드" /><p id="join-error" class="error"></p><button id="join-submit" type="button" class="primary wide">대기실 입장</button></form></dialog>
   <dialog id="room-access-dialog"><form method="dialog" class="room-access-modal"><button class="modal-close" value="cancel">×</button><p class="eyebrow">학생 접속 안내</p><h2>QR을 스캔하거나 코드를 입력하세요</h2><div class="room-access-layout"><div id="room-qr" class="room-qr" aria-label="학생 접속 QR 코드"></div><div class="room-access-info"><span>입장 코드</span><strong id="room-code-large">------</strong><p id="room-join-url"></p><button id="copy-join-link" type="button" class="ghost wide">접속 링크 복사</button><p id="copy-result" class="copy-result" role="status"></p></div></div><button value="cancel" class="primary wide">확인</button></form></dialog>
   <dialog id="quiz-dialog"><form method="dialog" class="quiz-modal"><div class="quiz-top"><span id="quiz-category"></span><span id="quiz-timer"></span></div><div id="quiz-question" class="quiz-question"></div><div id="quiz-choices" class="quiz-choices"></div><div id="quiz-feedback" class="quiz-feedback"></div></form></dialog>
   <dialog id="event-dialog"><form method="dialog" class="modal-card event-modal"><span id="event-icon" class="modal-icon"></span><h2 id="event-title"></h2><p id="event-message"></p><button id="event-confirm" type="button" class="primary wide">확인</button></form></dialog>
