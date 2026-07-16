@@ -71,3 +71,9 @@ button.item-chip.usable{background:#dff0ff;border-color:#2678ac;color:#14496b;bo
 .tv-rank-row strong{font-size:13px;color:var(--navy)}
 .tv-quiz-timer{font-size:26px;font-weight:950;color:#b8471f;margin-bottom:8px}
 @media(max-width:1050px){.tv-rank{display:none}}
+/* ── 관전 중계 오버레이 ── */
+.game-overlay{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);width:min(560px,92%);max-height:62%;overflow:auto;z-index:11;padding:14px 18px;border:3px solid var(--gold);border-radius:16px;background:#fff9edf2;box-shadow:0 14px 40px #000a}
+.game-overlay[hidden]{display:none}
+.game-overlay-head{font-weight:950;color:var(--red);font-size:16px;margin-bottom:7px}
+.game-overlay-body{font-size:14px;line-height:1.5}
+.overlay-choice{margin:4px 0;padding:6px 10px;border-radius:8px;background:#f2e7c9;text-align:left;font-size:13px}
