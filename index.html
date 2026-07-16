@@ -28,6 +28,7 @@
       <div class="setup-panel">
         <div class="step-card"><div class="step-title"><span>1</span><div><h2>참가 팀</h2><p>팀 수와 이름을 정하세요.</p></div></div><div class="team-count" id="team-count"></div><div id="team-fields" class="team-fields"></div></div>
         <div class="step-card"><div class="step-title"><span>2</span><div><h2>탐험 말</h2><p>팀 카드를 누른 뒤 원하는 말을 고르세요.</p></div></div><div id="active-team-label" class="active-team-label"></div><div id="token-picker" class="token-picker"></div></div>
+        <div class="step-card"><div class="step-title"><span>3</span><div><h2>수업 시간 모드</h2><p>시간이 끝나면 점수(위치+땅×5+정답×3)로 승부합니다.</p></div></div><div id="duration-picker" class="team-count duration-picker"></div></div>
         <button id="start-game" class="primary wide">게임방 만들고 입장 QR 표시</button>
       </div>
     </section>
@@ -60,7 +61,8 @@
         <div class="brand"><span>🏯</span><div><b>한국사 역사 탐험</b><small>80칸 역사 여행</small></div></div>
         <div id="turn-banner" class="turn-banner"></div>
         <button id="room-access-button" class="room-access-button" type="button" disabled><span>학생 입장</span><strong id="room-label">게임방 준비 전</strong></button>
-        <div class="header-actions"><button id="open-report" class="ghost">학습 기록</button><button id="exit-game" class="ghost">나가기</button></div>
+        <strong id="class-timer" class="class-timer" hidden></strong>
+        <div class="header-actions"><button class="ghost snd-sfx" type="button">🔊</button><button class="ghost snd-bgm" type="button">🎵 OFF</button><button id="open-report" class="ghost">학습 기록</button><button id="exit-game" class="ghost">나가기</button></div>
       </header>
       <div class="game-layout">
         <aside class="team-rail"><h2>탐험대</h2><div id="team-list"></div></aside>
@@ -68,13 +70,15 @@
           <div id="board-shell" class="board-shell">
             <img src="history_board_game_80_map_palace_final.svg" alt="1번 시작부터 80번 도착까지 이어지는 한국사 보드게임판" />
             <div id="land-layer" class="land-layer" aria-hidden="true"></div>
+            <div id="event-layer" class="event-layer" aria-hidden="true"></div>
             <div id="token-layer" class="token-layer"></div>
             <div id="board-toast" class="board-toast" role="status"></div>
           </div>
         </section>
         <aside class="control-rail">
-          <div class="dice-card"><p id="dice-owner">주사위 준비</p><div id="dice" class="dice" aria-label="주사위 결과"><i></i></div><div class="charge"><span id="charge-fill"></span></div><button id="roll-button" class="roll-button">꾹 눌러 던지기</button><small>최대 2초 · 놓으면 굴러갑니다</small></div>
-          <div class="inventory-card"><h3>보유 아이템</h3><div id="inventory"></div></div>
+          <div class="dice-card"><p id="dice-owner">주사위 준비</p><div id="dice" class="dice dual" aria-label="주사위 결과"><span class="die" id="die1">–</span><span class="die" id="die2">–</span></div><p class="dice-hint">더블이 나오면 한 번 더!</p><div class="charge"><span id="charge-fill"></span></div><button id="roll-button" class="roll-button">꾹 눌러 던지기</button><small>최대 2초 · 놓으면 굴러갑니다</small></div>
+          <div class="teacher-tools" id="teacher-tools" hidden><h3>🧑‍🏫 교사 진행 도구</h3><div class="tool-grid"><button id="tool-skip" class="ghost" type="button">⏭️ 턴 넘기기</button><button id="tool-host" class="ghost" type="button">🎮 대리 진행: OFF</button><button id="tool-steal-end" class="ghost" type="button">⚡ 스틸 종료</button><button id="tool-finish" class="ghost" type="button">🏁 점수로 종료</button></div></div>
+          <div class="inventory-card"><h3 id="inventory-title">보유 아이템</h3><div id="inventory"></div></div>
           <div class="log-card"><h3>탐험 기록</h3><ol id="game-log"></ol></div>
         </aside>
       </div>
@@ -93,8 +97,9 @@
     </section>
 
     <section id="tv-screen" class="screen tv-screen">
-      <div class="tv-title">한국사 역사 탐험 <span>LIVE</span></div>
-      <div class="tv-board"><img src="history_board_game_80_map_palace_final.svg" alt="TV 중계용 보드" /><div id="tv-token-layer"></div></div>
+      <div class="tv-title">한국사 역사 탐험 <span>LIVE</span><strong id="tv-timer" class="class-timer" hidden></strong><span class="tv-sound"><button class="ghost snd-sfx" type="button">🔊</button></span></div>
+      <div class="tv-board"><img src="history_board_game_80_map_palace_final.svg" alt="TV 중계용 보드" /><div id="tv-event-layer" class="event-layer"></div><div id="tv-token-layer"></div></div>
+      <div id="tv-rank" class="tv-rank"></div>
       <div id="tv-dice-panel" class="tv-dice-panel"><span id="tv-dice-team">주사위 대기</span><strong id="tv-dice">–</strong></div>
       <div id="tv-overlay" class="tv-overlay" hidden><div id="tv-overlay-icon" class="tv-overlay-icon"></div><h2 id="tv-overlay-title"></h2><div id="tv-overlay-body"></div></div>
       <div id="tv-status" class="tv-status">게임 시작을 기다리는 중입니다.</div>
@@ -107,12 +112,16 @@
   <dialog id="quiz-dialog"><form method="dialog" class="quiz-modal"><div class="quiz-top"><span id="quiz-category"></span><span id="quiz-timer"></span></div><div id="quiz-question" class="quiz-question"></div><div id="quiz-choices" class="quiz-choices"></div><div id="quiz-feedback" class="quiz-feedback"></div></form></dialog>
   <dialog id="event-dialog"><form method="dialog" class="modal-card event-modal"><span id="event-icon" class="modal-icon"></span><h2 id="event-title"></h2><p id="event-message"></p><button id="event-confirm" type="button" class="primary wide">확인</button></form></dialog>
   <dialog id="item-dialog"><form method="dialog" class="modal-card"><span class="modal-icon">🎴</span><h2 id="item-title"></h2><p id="item-message"></p><div class="dialog-actions"><button id="item-skip" type="button" class="ghost">사용 안 함</button><button id="item-use" type="button" class="primary">사용하기</button></div></form></dialog>
-  <dialog id="report-dialog"><form method="dialog" class="report-modal"><button class="modal-close" value="cancel">×</button><h2>학습 결과 리포트</h2><div id="report-summary"></div><div id="wrong-note"></div></form></dialog>
-  <dialog id="winner-dialog"><form method="dialog" class="winner-modal"><div class="confetti">🎉 ✨ 🎊</div><h2 id="winner-title"></h2><p>역사의 흐름을 완주하고 역사왕이 되신 것을 축하합니다!</p><button id="winner-report" type="button" class="primary">결과 확인</button></form></dialog>
+  <dialog id="report-dialog"><form method="dialog" class="report-modal"><button class="modal-close" value="cancel">×</button><h2>학습 결과 리포트</h2><div id="report-summary"></div><div class="report-actions"><button id="download-wrong" type="button" class="ghost">📥 오답노트 XLSX 다운로드</button></div><div id="wrong-note"></div></form></dialog>
+  <dialog id="winner-dialog"><form method="dialog" class="winner-modal"><div class="confetti">🎉 ✨ 🎊</div><h2 id="winner-title"></h2><p id="winner-subtitle">역사의 흐름을 완주하고 역사왕이 되신 것을 축하합니다!</p><div id="winner-ranking" class="winner-ranking"></div><button id="winner-report" type="button" class="primary">결과 확인</button></form></dialog>
+  <dialog id="steal-dialog"><form method="dialog" class="modal-card steal-modal"><span class="modal-icon">⚡</span><h2>스틸 찬스!</h2><p id="steal-message"></p><button id="steal-roll" type="button" class="primary wide steal-roll-button">🎲 주사위 굴려 도전!</button><p id="steal-status" class="lobby-status" role="status" aria-live="polite"></p></form></dialog>
+  <dialog id="freeze-dialog"><form method="dialog" class="modal-card"><button class="modal-close" value="cancel">×</button><span class="modal-icon">⏸️</span><h2>멈춰라! 대상 선택</h2><p>한 턴 쉬게 할 팀을 고르세요.</p><div id="freeze-targets" class="rejoin-list"></div></form></dialog>
+  <dialog id="rejoin-dialog"><form method="dialog" class="modal-card"><button class="modal-close" value="cancel">×</button><span class="modal-icon">🔁</span><h2>게임 복귀</h2><p>내 팀을 선택하면 이어서 플레이합니다.</p><div id="rejoin-teams" class="rejoin-list"></div></form></dialog>
 
   <script src="config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

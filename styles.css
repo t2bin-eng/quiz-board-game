@@ -10,3 +10,64 @@ dialog{border:0;border-radius:24px;padding:0;box-shadow:0 25px 80px #08182799;ma
 @media(max-width:1050px){.game-layout{grid-template-columns:1fr 230px}.team-rail{grid-column:1/-1;display:flex;gap:7px;overflow-x:auto}.team-rail h2{display:none}.team-rail #team-list{display:flex}.team-card{min-width:160px}.board-stage{grid-column:1}.control-rail{grid-column:2}}@media(max-width:760px){.hero-card{padding:58px 22px 48px}.entry-grid,.setup-panel{grid-template-columns:1fr}.entry-button{min-height:115px}.game-header{height:auto;flex-wrap:wrap;padding:8px}.brand{min-width:0}.header-actions{margin-left:auto}.game-layout{display:flex;flex-direction:column;height:auto}.board-stage{order:1}.team-rail{order:2}.control-rail{order:3}.board-shell{border-radius:8px}.control-rail{overflow:visible}.dice-card{position:sticky;bottom:5px;z-index:20}.dashboard-grid{grid-template-columns:1fr}.wide-card{grid-column:auto;display:block}.upload-actions,.dashboard-actions{margin-top:15px;flex-wrap:wrap}.summary-grid{grid-template-columns:1fr}.topbar{padding:0 10px}.topbar span{display:none}}
 @media(max-width:760px){.room-access-button{order:3;min-width:145px}.room-access-layout{grid-template-columns:1fr}.room-qr{margin:auto;width:230px;height:230px}.room-access-info{text-align:center}.room-access-info>strong{font-size:40px}}
 @media(max-width:760px){.teacher-lobby-card{grid-template-columns:1fr;padding:16px}.teacher-player-list,.teacher-lobby-actions{grid-column:auto}.lobby-player{grid-template-columns:46px 1fr auto}.lobby-player .kick-player{grid-column:2/-1}.teacher-lobby-actions{align-items:stretch;flex-direction:column}.lobby-code-panel>strong{font-size:38px}}
+
+/* ── 주사위 2개 ── */
+.dice.dual{display:flex;gap:10px;justify-content:center;align-items:center;width:auto;height:auto;margin:12px auto;background:transparent;border:0;box-shadow:none}
+.die{width:60px;height:60px;border-radius:15px;background:#f8f0d8;border:4px solid #263747;box-shadow:0 6px 0 #263747;display:grid;place-items:center;font-size:32px;font-weight:950}
+.dice.dual.rolling .die{animation:diceRoll .16s linear infinite}
+.dice-hint{margin:0 0 8px;font-size:12px;color:#8a744f;font-weight:800}
+/* ── 수업 시간 타이머 ── */
+.class-timer{padding:7px 13px;border-radius:12px;background:#1e4a37;color:#ffe9a8;font-size:18px;font-weight:950;letter-spacing:.05em}
+.class-timer.urgent{background:#8f2c22;color:#fff;animation:pulseTimer 1s infinite}
+@keyframes pulseTimer{50%{transform:scale(1.07)}}
+.duration-picker button{width:auto;padding:0 14px}
+/* ── 보드 이벤트 칸 ── */
+.event-layer{position:absolute;inset:0;pointer-events:none}
+.event-mark{position:absolute;transform:translate(-50%,-15%);font-size:clamp(13px,1.5vw,21px);filter:drop-shadow(0 2px 3px #0008);z-index:3}
+/* ── 팀 카드 확장 ── */
+.team-flags{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.team-card .boost{color:#0d6db0;font-size:11px;font-weight:900}
+.team-card.inactive{opacity:.45;filter:grayscale(.7)}
+.team-toggle{border:1px solid #b7a27a;border-radius:8px;background:#fff;padding:4px 8px;font-size:11px;font-weight:900;color:#6b5133}
+.player-token.inactive{opacity:.35;filter:grayscale(.8)}
+/* ── 클릭형 인벤토리 ── */
+button.item-chip{cursor:pointer;font-weight:800}
+button.item-chip.usable{background:#dff0ff;border-color:#2678ac;color:#14496b;box-shadow:0 3px 0 #2678ac55;animation:glowChip 1.6s infinite}
+@keyframes glowChip{50%{transform:translateY(-2px)}}
+.inv-hint{margin:9px 0 0;font-size:11px;color:#8a744f}
+/* ── 교사 진행 도구 ── */
+.teacher-tools{border:2px dashed #8f4037;border-radius:15px;padding:13px;background:#fff4ef}
+.teacher-tools h3{margin:0 0 9px;font-size:14px;color:#8f4037}
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.tool-grid .ghost{padding:9px 6px;font-size:12px}
+/* ── 스틸 찬스 ── */
+.steal-modal{border:4px solid #d7a33f;background:linear-gradient(#fffbe9,#ffe9c0)}
+.steal-roll-button{font-size:20px;padding:17px;background:#b8860b;box-shadow:0 7px 0 #7a5807;animation:glowChip 1s infinite}
+.tv-overlay.steal-overlay{border-color:#e6a817;background:#fff6dcf5}
+.tv-overlay.steal-overlay h2{color:#a06e00}
+/* ── 복귀/대상 선택 리스트 ── */
+.rejoin-list{display:grid;gap:8px;margin-top:14px;max-height:46vh;overflow:auto}
+.rejoin-team{display:grid;grid-template-columns:44px 1fr;align-items:center;gap:4px 10px;text-align:left;padding:10px 12px;border:2px solid #d5c39c;border-radius:13px;background:#fffaf0}
+.rejoin-team:hover{border-color:var(--gold);background:#fff1c9}
+.rejoin-team span{grid-row:1/3;font-size:28px}
+.rejoin-team small{color:#8a744f}
+/* ── 우승 랭킹 ── */
+.winner-ranking{margin:14px 0;display:grid;gap:6px;text-align:left}
+.rank-row{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:8px;padding:9px 13px;border-radius:11px;background:#fff9;border:1px solid #d9c391}
+.rank-row.top{background:#ffefb3;border-color:#d7a33f;font-size:17px}
+.report-actions{margin:14px 0;display:flex;justify-content:flex-end}
+/* ── TV 순위/사운드 ── */
+.tv-sound{margin-left:12px}
+.tv-sound .ghost{padding:6px 10px}
+.tv-title .class-timer{margin-left:14px;font-size:22px;vertical-align:middle}
+.tv-rank{position:absolute;left:3vw;top:70px;z-index:30;width:min(300px,26vw);padding:13px 15px;border:3px solid #e6bd62;border-radius:18px;background:#fff8e9ee;box-shadow:0 12px 30px #0006}
+.tv-rank h3{margin:0 0 9px;color:var(--navy)}
+.tv-rank-row{display:grid;grid-template-columns:22px 26px 1fr auto;align-items:center;gap:6px;margin-bottom:6px}
+.tv-rank-no{font-weight:950;color:#8f4037}
+.tv-rank-token{font-size:19px}
+.tv-rank-bar-wrap{position:relative;height:24px;border-radius:7px;background:#eee3c8;overflow:hidden}
+.tv-rank-bar{position:absolute;inset:0 auto 0 0;border-radius:7px;opacity:.45;transition:width .5s}
+.tv-rank-bar-wrap b{position:relative;z-index:2;display:block;padding:3px 7px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv-rank-row strong{font-size:13px;color:var(--navy)}
+.tv-quiz-timer{font-size:26px;font-weight:950;color:#b8471f;margin-bottom:8px}
+@media(max-width:1050px){.tv-rank{display:none}}

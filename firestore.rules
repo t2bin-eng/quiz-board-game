@@ -11,24 +11,18 @@ service cloud.firestore {
     function isRoomMemberAfter(roomId) {
       return signedIn() && existsAfter(/databases/$(database)/documents/rooms/$(roomId)/players/$(request.auth.uid));
     }
-    function ownsCurrentTurn() {
-      return resource.data.snapshot.current is int
-        && resource.data.snapshot.current >= 0
-        && resource.data.snapshot.current < resource.data.snapshot.teams.size()
-        && resource.data.snapshot.teams[resource.data.snapshot.current].ownerUid == request.auth.uid;
-    }
-
     match /rooms/{roomId} {
       allow create: if isTeacher() && request.resource.data.teacherId == request.auth.uid;
       allow get: if signedIn();
       allow list: if false;
+      // 게임 중에는 방 멤버(스틸 도전·아이템 사용·재입장 포함)가 snapshot을 갱신할 수 있다.
+      // status 전환(lobby→playing 등)은 교사만 가능.
       allow update: if request.resource.data.teacherId == resource.data.teacherId
         && request.resource.data.code == resource.data.code
         && (isTeacher()
           || ((isRoomMember(roomId) || isRoomMemberAfter(roomId))
             && request.resource.data.status == resource.data.status
-            && (resource.data.status == 'lobby'
-              || (resource.data.status == 'playing' && ownsCurrentTurn()))));
+            && (resource.data.status == 'lobby' || resource.data.status == 'playing')));
       allow delete: if isTeacher() && resource.data.teacherId == request.auth.uid;
 
       match /players/{playerId} {
